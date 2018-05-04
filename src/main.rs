@@ -4,7 +4,6 @@ extern crate structopt;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::process;
 use structopt::StructOpt;
 
 use std::path::Path;
@@ -29,7 +28,7 @@ fn check_file(fname: &std::path::Display, f: &std::fs::File) {
 #[derive(StructOpt)]
 #[structopt(about="A file checker to validate UTF-8.")]
 struct Args {
-    #[structopt(help="Files to check for valid UTF-8")]
+    #[structopt(help="Files to check for valid UTF-8", raw(required = "true"))]
     files: Vec<String>,
 }
 
@@ -44,7 +43,6 @@ fn main() {
             Ok(f) => check_file(&display, &f),
             Err(e) => {
                 println!("{} : Error: {}", display, e);
-                process::exit(0x01)
             }
         }
     }
