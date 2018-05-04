@@ -9,12 +9,12 @@ Manfred Lotz <manfred.lotz@posteo.de>
 A file checker to validate UTF-8.
 
 USAGE:
-    checkutf8 -f <infile>
+    checkutf8 [files]...
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
-OPTIONS:
-    -f <infile>        File to check for valid UTF-8
+ARGS:
+    <files>...    Files to check for valid UTF-8
 ```

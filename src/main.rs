@@ -7,9 +7,10 @@ use std::io::BufReader;
 use std::process;
 use structopt::StructOpt;
 
+use std::path::Path;
 
 
-fn check_file(f: &std::fs::File) {
+fn check_file(fname: &std::path::Display, f: &std::fs::File) {
 
     let reader = BufReader::new(f);
 
@@ -19,7 +20,7 @@ fn check_file(f: &std::fs::File) {
     for line in lines {
         lineno += 1;
         match String::from_utf8(line.clone()) {
-            Err(e) => println!("Error in line {}: {}", lineno, e),
+            Err(e) => println!("{} : Error in line {}: {}", fname, lineno, e),
             Ok(_) => ()
         }
     }
@@ -28,18 +29,23 @@ fn check_file(f: &std::fs::File) {
 #[derive(StructOpt)]
 #[structopt(about="A file checker to validate UTF-8.")]
 struct Args {
-    #[structopt(short="f", help="File to check for valid UTF-8")]
-    infile: String,
+    #[structopt(help="Files to check for valid UTF-8")]
+    files: Vec<String>,
 }
 
 fn main() {
-    let Args { infile } = Args::from_args();
+    let Args { files } = Args::from_args();
 
-    match File::open(infile) {
-        Ok(f) => check_file(&f),
-        Err(e) => {
-            println!("Error: {}", e);
-            process::exit(0x01)
+    for file in files {
+        let path = Path::new(&file);
+        let display = path.display();
+
+        match File::open(&path) {
+            Ok(f) => check_file(&display, &f),
+            Err(e) => {
+                println!("{} : Error: {}", display, e);
+                process::exit(0x01)
+            }
         }
     }
 }
