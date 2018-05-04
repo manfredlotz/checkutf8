@@ -1,0 +1,7 @@
+[package]
+name = "checkutf8"
+version = "0.9.0"
+authors = ["Manfred Lotz <manfred.lotz@posteo.de>"]
+
+[dependencies]
+structopt = "0.2.7"
