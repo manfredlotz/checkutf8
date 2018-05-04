@@ -19,7 +19,7 @@ fn check_file(f: &std::fs::File) {
     for line in lines {
         lineno += 1;
         match String::from_utf8(line.clone()) {
-            Err(e) => println!("Errer in line {}: {}", lineno, e),
+            Err(e) => println!("Error in line {}: {}", lineno, e),
             Ok(_) => ()
         }
     }
