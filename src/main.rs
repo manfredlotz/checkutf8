@@ -9,27 +9,18 @@ use structopt::StructOpt;
 
 
 
-fn check_file(filename: &str) {
+fn check_file(f: &std::fs::File) {
 
-    let file = File::open(filename);
-    match file {
-        Ok(f) => 
-        {
-            let reader = BufReader::new(&f);
+    let reader = BufReader::new(f);
 
-            let lines = reader.split(b'\n').map(|l| l.unwrap());
+    let lines = reader.split(b'\n').map(|l| l.unwrap());
 
-            let mut line_no = 0;
-            for line in lines {
-                line_no = line_no + 1;
-                match String::from_utf8(line.clone()) {
-                    Err(e) => println!("Errer in line {}: {}", line_no, e),
-                    Ok(_) => ()
-                }
-            }}
-        Err(e) => {
-            println!("Error: {}", e);
-            process::exit(0x01)
+    let mut lineno = 0;
+    for line in lines {
+        lineno += 1;
+        match String::from_utf8(line.clone()) {
+            Err(e) => println!("Errer in line {}: {}", lineno, e),
+            Ok(_) => ()
         }
     }
 }
@@ -44,31 +35,11 @@ struct Args {
 fn main() {
     let Args { infile } = Args::from_args();
 
-
-    //let mut line_no = 0;
-
-    // for line in slurp::iterate_all_lines(&infile) {
-    //     line_no = line_no + 1;
-    //     println!("{:?}",line);
-    //     match line {
-    //         Err(e) => match e.kind() {
-    //             std::io::ErrorKind::InvalidData => {  println!("Line {}: {}",line_no, e);
-    //                                                   // Will print "No inner error".
-    //                                                   print_error(&Error::last_os_error());
-    //                                                   // Will print "Inner error: ...".
-    //                                                   print_error(&Error::new(ErrorKind::Other, "oh no!"));
-    //             },
-    //             std::io::ErrorKind::PermissionDenied => {
-    //                 println!("Error: {}", e);
-    //                 process::exit(0x01)
-    //             },
-    //             _ => {
-    //                 println!("Error: {}",e);
-    //                 process::exit(0x02)
-    //             }
-    //         },
-    //         Ok(_line) => ()
-    //     }
-    // }
-    check_file(&infile);
+    match File::open(infile) {
+        Ok(f) => check_file(&f),
+        Err(e) => {
+            println!("Error: {}", e);
+            process::exit(0x01)
+        }
+    }
 }
