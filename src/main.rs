@@ -10,25 +10,24 @@ use structopt::StructOpt;
 use std::path::Path;
 
 
-fn check_file(fname: &std::path::Display, f: &std::fs::File) -> i32 {
-
+fn check_file(fname: &str, f: &std::fs::File) -> bool {
     let reader = BufReader::new(f);
 
     let lines = reader.split(b'\n').map(|l| l.unwrap());
-    let mut highrc = 0x00;
+    let mut result = true;
 
     let mut lineno = 0;
     for line in lines {
         lineno += 1;
         match String::from_utf8(line.clone()) {
             Err(e) => { println!("{} : Error in line {}: {}", fname, lineno, e);
-                        highrc = 0x01
+                        result = false
             },
             Ok(_) => ()
         }
     }
 
-    return highrc;
+    return result;
 }
 
 #[derive(StructOpt)]
@@ -45,14 +44,17 @@ fn main() {
 
     for file in files {
         let path = Path::new(&file);
-        let display = path.display();
+        if !path.is_file() {
+            println!("{} : not a file", file);
+            continue;
+        }
 
         match File::open(&path) {
-            Ok(f) => if check_file(&display, &f) != 0 {
+            Ok(f) => if !check_file(&file, &f) {
                 highrc = 0x01;
             },
             Err(e) => {
-                println!("{} : Error: {}", display, e);
+                println!("{} : Error: {}", file, e);
                 highrc = 0x01;
             }
         }
