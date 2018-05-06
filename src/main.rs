@@ -46,6 +46,7 @@ fn main() {
         let path = Path::new(&file);
         if !path.is_file() {
             println!("{} : not a file", file);
+            highrc = 0x01;
             continue;
         }
 
