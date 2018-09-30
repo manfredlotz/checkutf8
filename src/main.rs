@@ -16,17 +16,28 @@ fn check_file(fname: &str, f: &std::fs::File) -> bool {
     let lines = reader.split(b'\n').map(|l| l.unwrap());
     let mut result = true;
 
+    let mut header_printed = false;
     let mut lineno = 0;
     for line in lines {
         lineno += 1;
         match String::from_utf8(line.clone()) {
-            Err(e) => { println!("{} : Error in line {}: {}", fname, lineno, e);
-                        result = false
+            Err(e) => {
+                
+
+                if !header_printed {
+                    println!("{}: not valid UTF-8", fname);
+                    header_printed = true;
+                }
+                println!("   >> line {} {}", lineno + 1, e);
+                result = false
             },
             Ok(_) => ()
         }
     }
 
+    if !header_printed {
+        println!("{}: ok", fname);
+    }
     return result;
 }
 
