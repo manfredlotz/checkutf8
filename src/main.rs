@@ -1,14 +1,10 @@
-#[macro_use]
-extern crate structopt;
-
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::process;
-use structopt::StructOpt;
-
 use std::path::Path;
+use std::process;
 
+use clap::{Parser, ValueHint};
 
 fn check_file(fname: &str, f: &std::fs::File) -> bool {
     let reader = BufReader::new(f);
@@ -20,40 +16,35 @@ fn check_file(fname: &str, f: &std::fs::File) -> bool {
     let mut lineno = 0;
     for line in lines {
         lineno += 1;
-        match String::from_utf8(line.clone()) {
-            Err(e) => {
-                
-
-                if !header_printed {
-                    println!("{}: not valid UTF-8", fname);
-                    header_printed = true;
-                }
-                println!("   >> line {} {}", lineno + 1, e);
-                result = false
-            },
-            Ok(_) => ()
+        if let Err(e) = String::from_utf8(line.clone()) {
+            if !header_printed {
+                println!("{}: not valid UTF-8", fname);
+                header_printed = true;
+            }
+            println!("   >> line {} {}", lineno + 1, e);
+            result = false
         }
     }
 
     if !header_printed {
         println!("{}: ok", fname);
     }
-    return result;
+    result
 }
 
-#[derive(StructOpt)]
-#[structopt(about="A file checker to validate UTF-8.")]
+#[derive(Parser, Debug, PartialEq)]
+#[clap(author, version, about, long_about = None,arg_required_else_help(true))]
 struct Args {
-    #[structopt(help="Files to check for valid UTF-8", raw(required = "true"))]
+    #[arg(help="Files to check for valid UTF-8", value_hint= ValueHint::FilePath)]
     files: Vec<String>,
 }
 
 fn main() {
-    let Args { files } = Args::from_args();
+    let args = Args::parse();
 
     let mut highrc = 0x00;
 
-    for file in files {
+    for file in &args.files {
         let path = Path::new(&file);
         if !path.is_file() {
             println!("{} : not a file", file);
@@ -61,10 +52,12 @@ fn main() {
             continue;
         }
 
-        match File::open(&path) {
-            Ok(f) => if !check_file(&file, &f) {
-                highrc = 0x01;
-            },
+        match File::open(path) {
+            Ok(f) => {
+                if !check_file(file, &f) {
+                    highrc = 0x01;
+                }
+            }
             Err(e) => {
                 println!("{} : Error: {}", file, e);
                 highrc = 0x01;
