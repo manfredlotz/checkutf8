@@ -1,3 +1,13 @@
+ _____________________________________________
+/ This repository has been moved to codeberg. \
+\ https://codeberg.org/ManfredLotz/checkutf8  /
+ ---------------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
 # checkutf8
 
 checkutf8 validate UTF-8 encoding of a text file. Error messages show line and offset of errors.
